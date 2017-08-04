@@ -15,6 +15,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using static SpatialSphereDemo.SpatialSoundSource;
 //using osc.net;
 //using System.Net;
 
@@ -22,7 +23,10 @@ namespace SpatialSphereDemo
 {
     public sealed partial class MainPage : Page
     {
-        
+        private Note[] _lasMananitas = new Note[] {
+            Note.D, Note.D, Note.G, Note.G, Note.Fs, Note.G, Note.A,
+            Note.Fs, Note.G, Note.A, Note.B, Note.G, Note.A, Note.B, Note.C};
+
         /// <summary>
         ///1. Configure all spatial audio positions
         /// </summary>
@@ -243,6 +247,9 @@ namespace SpatialSphereDemo
 
         private async Task CreateEmitter(int spatialSoundIdx)
         {
+            if (_graph == null)
+                return;
+
             //Create the AudioNodeEmitter
             AudioNodeEmitter emitter = new AudioNodeEmitter(
                 AudioNodeEmitterShape.CreateOmnidirectional(),
@@ -251,13 +258,15 @@ namespace SpatialSphereDemo
 
             emitter.Position = _spatialSounds[spatialSoundIdx].Position;
             //Create a new AudioFileInputNode and add an emitter to it
-            CreateAudioFileInputNodeResult inCreateResult = await _graph.CreateFileInputNodeAsync(await GetSoundFileAsync(spatialSoundIdx), emitter);
+            var audio = await GetSoundFileAsync(spatialSoundIdx);
+
+            CreateAudioFileInputNodeResult inCreateResult = await _graph.CreateFileInputNodeAsync(audio, emitter);
             inCreateResult.FileInputNode.OutgoingGain = 5;// _spatialSounds[_spatialSoundsIdx].Gain;
                                                           //Add the new AudioFileInputNode to the AudioGraph
             inCreateResult.FileInputNode.AddOutgoingConnection(_deviceOutput);
             inCreateResult.FileInputNode.AddOutgoingConnection(_submixNode);
             //Subscribe to the FileCompleted event so that we can go to the next spatial sound
-            inCreateResult.FileInputNode.FileCompleted += CurrentAudioFileInputNode_FileCompleted;
+            //inCreateResult.FileInputNode.FileCompleted += CurrentAudioFileInputNode_FileCompleted;
 
             if (_currentAudioFileInputNode != null && 
                 _currentAudioFileInputNode.OutgoingConnections.Count > 0)
@@ -375,7 +384,7 @@ namespace SpatialSphereDemo
         private async Task<StorageFile> GetSoundFileAsync(int idx)
         {
             //Get the sound file 
-            StorageFile soundFile = await SpatialSoundSource.GetMonoSoundFile();
+            StorageFile soundFile = await SpatialSoundSource.GetMonoSoundFile(_lasMananitas[idx]);
 
             return soundFile;
         }
@@ -406,10 +415,10 @@ namespace SpatialSphereDemo
 
         private async void IntelligentHeadsetSensorPeripheral_AccelerometerValueChanged(INavigationSensorPeripheral sender, AccelerometerValueChangedEventArgs args)
         {
-            DetectSteps(args);
-
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                await DetectSteps(args);
+
                 //Update the TopHead Image position
                 UpdateAccelerometerPosition(args);
                 //Update the Listener Orientation in the graph
@@ -417,9 +426,9 @@ namespace SpatialSphereDemo
             });
         }
 
-        private void DetectSteps(AccelerometerValueChangedEventArgs args)
+        private async Task DetectSteps(AccelerometerValueChangedEventArgs args)
         {
-            float stepThreshold = 0.35f;
+            float stepThreshold = _sensitivity;
 
             var curr = args.CurrentAccelerometerReading;
             var prev = args.PreviousAccelerometerReading;
@@ -427,15 +436,17 @@ namespace SpatialSphereDemo
             var deltaY = prev.AccelerationY - curr.AccelerationY;
             var deltaZ = prev.AccelerationZ - curr.AccelerationZ;
 
-            if (deltaY > stepThreshold)
+            if (Math.Abs(deltaY) > stepThreshold)
             {
-                TriggerStep();
+                await TriggerStep();
             }
         }
 
 
         Timer Timer = null;
         int StepsCounted = 0;
+        private int _stepTimeout;
+        private float _sensitivity;
 
         private void Timer_Elapsed(object state)
         {
@@ -443,12 +454,13 @@ namespace SpatialSphereDemo
             Timer = null;
         }
 
-        private void TriggerStep()
+        private async Task TriggerStep()
         {
             if (Timer == null)
             {
                 StepsCounted++;
-                Timer = new Timer(Timer_Elapsed, null, 1000, 0);
+                Timer = new Timer(Timer_Elapsed, null, _stepTimeout, 0);
+                await CreateEmitter((StepsCounted - 1) % _lasMananitas.Length);
             }
         }
 
@@ -485,5 +497,15 @@ namespace SpatialSphereDemo
 
 
         #endregion
+
+        private void timeSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            _stepTimeout = (int)e.NewValue;
+        }
+
+        private void sensitivitySlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            _sensitivity = (float)(e.NewValue) / 1000f;
+        }
     }
 }

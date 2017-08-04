@@ -12,6 +12,23 @@ namespace SpatialSphereDemo
     /// </summary>
     public class SpatialSoundSource
     {
+        public enum Note
+        {
+            Mono,
+            A,
+            As,
+            B,
+            C,
+            Cs,
+            D,
+            Ds,
+            E,
+            F,
+            Fs,
+            G,
+            Gs,
+        };
+
         public SpatialSoundSource() { }
 
         /// <summary>
@@ -61,10 +78,48 @@ namespace SpatialSphereDemo
             return file;
         }
 
-        public async static Task<StorageFile> GetMonoSoundFile()
+        public async static Task<StorageFile> GetMonoSoundFile(Note note)
         {
             ResourceContext rc = ResourceContext.GetForCurrentView();
-            var resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/MonoSound.wav", rc);
+            //var resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/MonoSound.wav", rc);
+            var resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-a.wav", rc);
+            //switch (note)
+            //{
+            //    case Note.A:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-a.wav", rc);
+            //        break;
+            //    case Note.As:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-as.wav", rc);D:\git\SpatialDemo\SpatialSphereDemo(Complete)\Audio\piano-g.wav
+            //        break;
+            //    case Note.B:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-b.wav", rc);
+            //        break;
+            //    case Note.C:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-c.wav", rc);
+            //        break;
+            //    case Note.Cs:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-cs.wav", rc);
+            //        break;
+            //    case Note.D:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-d.wav", rc);
+            //        break;
+            //    case Note.Ds:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-ds.wav", rc);
+            //        break;
+            //    case Note.E:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-e.wav", rc);
+            //        break;
+            //    case Note.F:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-f.wav", rc);
+            //        break;
+            //    case Note.G:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-g.wav", rc);
+            //        break;
+            //    case Note.Gs:
+            //        resource = ResourceManager.Current.MainResourceMap.GetValue("Files/Audio/piano-gs.wav", rc);
+            //        break;
+            //}
+
             StorageFile file = await resource.GetValueAsFileAsync();
             return file;
         }
