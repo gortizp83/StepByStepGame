@@ -197,42 +197,6 @@ namespace SpatialSphereDemo
         }
 
         /// <summary>
-        /// 7. Called when the Yaw, Pitch Roll for the Intelligent Headset changes.
-        /// </summary>
-        private async void IntelligentHeadsetSensorPeripheral_GyroChanged(INavigationSensorPeripheral sender, GyroChangedEventArgs args)
-        {
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                //Update the TopHead Image position
-                UpdateTopHeadPosition(args);
-                //Update the Listener Orientation in the graph
-                await UpdateListenerOrientation();
-            });
-        }
-
-        private async void _intelligentHeadsetSensorPeripheralGPS_GeocoordinateChanged(INavigationSensorPeripheral sender, GeocoordinateChangedEventArgs args)
-        {
-            double lat = args.SensorGeocoordinate.Latitude;
-            double lon = args.SensorGeocoordinate.Longitude;
-
-            //this.ListenerLat.Text = lat.ToString("0.0") + " N";
-            //this.ListenerLon.Text = lon.ToString("0.0") + " E";
-
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                double lat2 = args.SensorGeocoordinate.Latitude;
-                double lon2 = args.SensorGeocoordinate.Longitude;
-
-                this.ListenerLat.Text = lat2.ToString("0.0") + " N";
-                this.ListenerLon.Text = lon2.ToString("0.0") + " E";
-                //Update the TopHead Image position
-                //UpdateTopHeadPosition(args);
-                //Update the Listener Orientation in the graph
-                //await UpdateListenerOrientation();
-            });
-        }
-
-        /// <summary>
         /// 8. Update the listener position
         /// </summary>
         private async Task UpdateListenerOrientation()
@@ -381,25 +345,6 @@ namespace SpatialSphereDemo
             this.InitializeComponent();
         }
 
-        private void UpdateTopHeadPosition(GyroChangedEventArgs args)
-        {
-            //Update the top Head graphic
-            TopHeadPlaneProjection.RotationZ = 360 - args.Yaw;
-            TopHeadPlaneProjection.RotationX = 360 - args.Pitch;
-            TopHeadPlaneProjection.RotationY = 360 - args.Roll;
-
-            //Update the textblocks with the IMU orientation values
-            this.ListenerYaw.Text = args.Yaw.ToString("0.0") + " degrees";
-            this.ListenerPitch.Text = args.Pitch.ToString("0.0") + " degrees";
-            this.ListenerRoll.Text = args.Roll.ToString("0.0") + " degrees";
-            this.ListenerCompass.Text = args.Compass.ToString("0.0") + " degrees";
-            //string tosend = "" + this.ListenerYaw.Text + "," + this.ListenerPitch.Text + "," + this.ListenerRoll.Text;
-            //var message = new SharpOSC.OscMessage("/test/1", (float)args.Yaw, (float)args.Pitch, (float)args.Roll);
-            //var sender = new SharpOSC.UDPSender("127.0.0.1", 55555);
-            //sender.Send(message);
-        }
-
-
         /// <summary>
         /// Read the current yaw, picth, roll position from IMU or (0,0,0) if no IMU is connected
         /// </summary>
@@ -419,21 +364,6 @@ namespace SpatialSphereDemo
                 return new Vector4(0, 0, 0, 0);
             }
         }
-
-        //private async Task<Vector2> GetGPS()
-        //{
-        //    if (_intelligentHeadsetSensorPeripheralGPS != null && _intelligentHeadsetSensorPeripheralGPS.Connected)
-        //    {
-        //        if (reading == null)
-        //            return new Vector2(0, 0);
-
-        //        return new Vector2(360f - (float)reading.CurrentComboHprReading.Yaw, 360f - (float)reading.CurrentComboHprReading.Pitch, 360f - (float)reading.CurrentComboHprReading.Roll);
-        //    }
-        //    else
-        //    {
-        //        return new Vector2(0, 0);
-        //    }
-        //}
 
         /// <summary>
         /// Gets the spatial sound file for an index in the list of spatial sounds.
@@ -468,8 +398,6 @@ namespace SpatialSphereDemo
                 {
                     await _intelligentHeadsetSensorPeripheral.Calibrate();
                     _intelligentHeadsetSensorPeripheral.AccelerometerValueChanged += IntelligentHeadsetSensorPeripheral_AccelerometerValueChanged;
-                    _intelligentHeadsetSensorPeripheral.GyroChanged += IntelligentHeadsetSensorPeripheral_GyroChanged;
-                    _intelligentHeadsetSensorPeripheral.GeocoordinateChanged += _intelligentHeadsetSensorPeripheralGPS_GeocoordinateChanged;
                 }
                 else
                 {

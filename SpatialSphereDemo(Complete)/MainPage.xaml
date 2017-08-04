@@ -18,10 +18,8 @@
                 <RowDefinition Height="200" />
                 <RowDefinition Height="100" />
             </Grid.RowDefinitions>
-            <!--<Button Click="Button_Click" x:Name="GraphButton" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top"></Button>-->
             <StackPanel    Grid.Row="1" Width ="auto" Height="auto" >
                 <Canvas  Grid.Row="2" x:Name="canvas" Width="auto" Height="auto" VerticalAlignment="Top">
-
                     <Image x:Name="backgroundImage" Canvas.ZIndex="1" Source="Assets/ZombieSphere_Background.png" MaxWidth="590" MaxHeight="590" Width ="208" Height="220" Canvas.Left="221" Canvas.Top="14"></Image>
                     <Image x:Name="middlegroudndImage" Canvas.ZIndex="2" Source="Assets/ZombieSphere_Middleground.png" MaxWidth="590" MaxHeight="590" Width ="193" Height="254" Canvas.Left="213" Canvas.Top="14"></Image>
                     <Image x:Name="ActiveSound" Visibility="Collapsed" Canvas.ZIndex="3" Source="Assets/ActiveSound.png" Canvas.Left="151" Canvas.Top="345" />
@@ -39,37 +37,19 @@
                                     <RowDefinition Height="20"/>
                                     <RowDefinition Height="20"/>
                                     <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
-                                    <RowDefinition Height="20"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="75"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="Yaw:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="Pitch:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Roll:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Compass:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" Text="Latitude:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="5" FontWeight="Bold" Text="Longitude:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="6" FontWeight="Bold" Text="Acc X:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="7" FontWeight="Bold" Text="Acc Y:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="8" FontWeight="Bold" Text="Acc Z:"/>
-                                <TextBlock Grid.Column="0" Grid.Row="9" FontWeight="Bold" Text="Steps:"/>
-                                <TextBlock Grid.Column="1" Grid.Row="0" x:Name="ListenerYaw" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="1" x:Name="ListenerPitch" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="2" x:Name="ListenerRoll" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="3" x:Name="ListenerCompass" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="4" x:Name="ListenerLat" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="5" x:Name="ListenerLon" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="6" x:Name="ListenerAccelerometerX" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="7" x:Name="ListenerAccelerometerY" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="8" x:Name="ListenerAccelerometerZ" Text="0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="9" x:Name="ListenerStepCount" Text="0"/>
+                                <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="Acc X:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="Acc Y:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Acc Z:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Steps:"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0" x:Name="ListenerAccelerometerX" Text="0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1" x:Name="ListenerAccelerometerY" Text="0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="2" x:Name="ListenerAccelerometerZ" Text="0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="3" x:Name="ListenerStepCount" Text="0"/>
                             </Grid>
                             <CheckBox x:Name="UseSingleSound" IsChecked="False" Margin="0,15,0,0" Content="Use Single Sound"/>
                         </StackPanel>
