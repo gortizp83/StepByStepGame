@@ -51,7 +51,6 @@
                                 <TextBlock Grid.Column="1" Grid.Row="2" x:Name="ListenerAccelerometerZ" Text="0"/>
                                 <TextBlock Grid.Column="1" Grid.Row="3" x:Name="ListenerStepCount" Text="0"/>
                             </Grid>
-                            <CheckBox x:Name="UseSingleSound" IsChecked="False" Margin="0,15,0,0" Content="Use Single Sound"/>
                         </StackPanel>
                         <Button Click="Button_Click" x:Name="GraphButton" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     </StackPanel>

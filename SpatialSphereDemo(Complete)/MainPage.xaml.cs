@@ -146,33 +146,10 @@ namespace SpatialSphereDemo
                 if (deviceResult.Status == AudioDeviceNodeCreationStatus.Success)
                 {
                     _deviceOutput = deviceResult.DeviceOutputNode;
-                    
-                    //Create the emitter.
-                    AudioNodeEmitter emitter = new AudioNodeEmitter(
-                        AudioNodeEmitterShape.CreateOmnidirectional(),
-                        AudioNodeEmitterDecayModels.CreateNatural(),
-                        AudioNodeEmitterSettings.None);
-                    emitter.Position = _spatialSounds[0].Position;
-                    //Create the AudioFileInputNode
-                    CreateAudioFileInputNodeResult inCreateResult = await _graph.CreateFileInputNodeAsync(await GetSoundFileAsync(0), emitter);
-                    _currentAudioFileInputNode = inCreateResult.FileInputNode;
-                    //Attach the AudioFileInputNode to the DeviceOutput in the Graph
-                    _currentAudioFileInputNode.AddOutgoingConnection(_deviceOutput);
-                    //When the file is done playing, update the graph with a new emitter for the next spatial sound 
-                    _currentAudioFileInputNode.FileCompleted += CurrentAudioFileInputNode_FileCompleted;
 
-                    _currentAudioFileInputNode.OutgoingGain = 5;
+                    ConfigureSubmix();
 
-                    //Create the submix node for the reverb
-                    _submixNode = _graph.CreateSubmixNode();
-                    _submixNode.OutgoingGain = 0.125d;
-                    //Add the submix node to the DeviceOutput.
-                    _submixNode.AddOutgoingConnection(_deviceOutput);
-                    //Add Reverb to the Submix
-                    ReverbEffectDefinition reverb = ReverbEffectDefinitionFactory.GetReverbEffectDefinition(_graph, ReverbEffectDefinitions.SmallRoom);
-                    _submixNode.EffectDefinitions.Add(reverb);
-                    // Add the AudioFileInputNode to the submix
-                    _currentAudioFileInputNode.AddOutgoingConnection(_submixNode);
+                    await CreateEmitter(0);
 
                     //Show the position of the active sound
                     Canvas.SetLeft(this.ActiveSound, _spatialSounds[0].ImageResourceLocation.X * scaleFactor);
@@ -184,6 +161,18 @@ namespace SpatialSphereDemo
                     GraphState = GraphStateEnum.Playing;
                 }
             }
+        }
+
+        private void ConfigureSubmix()
+        {
+            //Create the submix node for the reverb
+            _submixNode = _graph.CreateSubmixNode();
+            _submixNode.OutgoingGain = 0.125d;
+            //Add the submix node to the DeviceOutput.
+            _submixNode.AddOutgoingConnection(_deviceOutput);
+            //Add Reverb to the Submix
+            ReverbEffectDefinition reverb = ReverbEffectDefinitionFactory.GetReverbEffectDefinition(_graph, ReverbEffectDefinitions.SmallRoom);
+            _submixNode.EffectDefinitions.Add(reverb);
         }
 
         /// <summary>
@@ -235,24 +224,7 @@ namespace SpatialSphereDemo
                 {
                     ActiveSound.Visibility = Visibility.Collapsed;
 
-                    //Create the AudioNodeEmitter
-                    AudioNodeEmitter emitter = new AudioNodeEmitter(AudioNodeEmitterShape.CreateOmnidirectional(), AudioNodeEmitterDecayModels.CreateNatural(), AudioNodeEmitterSettings.None);
-                    emitter.Position = _spatialSounds[_spatialSoundsIdx].Position;
-                    //Create a new AudioFileInputNode and add an emitter to it
-                    CreateAudioFileInputNodeResult inCreateResult = await _graph.CreateFileInputNodeAsync(await GetSoundFileAsync(_spatialSoundsIdx), emitter);
-                    inCreateResult.FileInputNode.OutgoingGain = 5;// _spatialSounds[_spatialSoundsIdx].Gain;
-                    //Add the new AudioFileInputNode to the AudioGraph
-                    inCreateResult.FileInputNode.AddOutgoingConnection(_deviceOutput);
-                    inCreateResult.FileInputNode.AddOutgoingConnection(_submixNode);
-                    //Subscribe to the FileCompleted event so that we can go to the next spatial sound
-                    inCreateResult.FileInputNode.FileCompleted += CurrentAudioFileInputNode_FileCompleted;
-
-                    //Remove the old AudioFileOutputNode from the AudioGraph
-                    _currentAudioFileInputNode.RemoveOutgoingConnection(_deviceOutput);
-                    _currentAudioFileInputNode.RemoveOutgoingConnection(_submixNode);
-
-                    //Set the current node
-                    _currentAudioFileInputNode = inCreateResult.FileInputNode;
+                    await CreateEmitter(_spatialSoundsIdx);
 
                     // Update the visual indicater 
                     Canvas.SetLeft(this.ActiveSound, _spatialSounds[_spatialSoundsIdx].ImageResourceLocation.X * scaleFactor);
@@ -267,6 +239,36 @@ namespace SpatialSphereDemo
                     _graph = null;
                 }
             });
+        }
+
+        private async Task CreateEmitter(int spatialSoundIdx)
+        {
+            //Create the AudioNodeEmitter
+            AudioNodeEmitter emitter = new AudioNodeEmitter(
+                AudioNodeEmitterShape.CreateOmnidirectional(),
+                AudioNodeEmitterDecayModels.CreateNatural(),
+                AudioNodeEmitterSettings.None);
+
+            emitter.Position = _spatialSounds[spatialSoundIdx].Position;
+            //Create a new AudioFileInputNode and add an emitter to it
+            CreateAudioFileInputNodeResult inCreateResult = await _graph.CreateFileInputNodeAsync(await GetSoundFileAsync(spatialSoundIdx), emitter);
+            inCreateResult.FileInputNode.OutgoingGain = 5;// _spatialSounds[_spatialSoundsIdx].Gain;
+                                                          //Add the new AudioFileInputNode to the AudioGraph
+            inCreateResult.FileInputNode.AddOutgoingConnection(_deviceOutput);
+            inCreateResult.FileInputNode.AddOutgoingConnection(_submixNode);
+            //Subscribe to the FileCompleted event so that we can go to the next spatial sound
+            inCreateResult.FileInputNode.FileCompleted += CurrentAudioFileInputNode_FileCompleted;
+
+            if (_currentAudioFileInputNode != null && 
+                _currentAudioFileInputNode.OutgoingConnections.Count > 0)
+            {
+                //Remove the old AudioFileOutputNode from the AudioGraph
+                _currentAudioFileInputNode.RemoveOutgoingConnection(_deviceOutput);
+                _currentAudioFileInputNode.RemoveOutgoingConnection(_submixNode);
+            }
+
+            //Set the current node
+            _currentAudioFileInputNode = inCreateResult.FileInputNode;
         }
 
         #region Helper Functions
@@ -373,11 +375,7 @@ namespace SpatialSphereDemo
         private async Task<StorageFile> GetSoundFileAsync(int idx)
         {
             //Get the sound file 
-            StorageFile soundFile = null;
-            if (UseSingleSound.IsChecked == true)
-                soundFile = await SpatialSoundSource.GetMonoSoundFile();
-            else
-                soundFile = await _spatialSounds[idx].GetSoundFileAsync();
+            StorageFile soundFile = await SpatialSoundSource.GetMonoSoundFile();
 
             return soundFile;
         }
